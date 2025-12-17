@@ -1,5 +1,5 @@
 {
-  "name": "@spinualexandru/smoldb",
+  "name": "@okei/smoldb",
   "module": "index.ts",
   "type": "module",
   "private": false,
