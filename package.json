@@ -3,13 +3,30 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "author": "Alexandru Spinu",
+  "license": "MIT",
+  "version": "0.1.0",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "bun build ./index.ts --outdir ./dist --target bun --sourcemap",
+    "test": "bun test",
+    "bench": "bun benchmarks/run.ts",
+    "bench:json": "bun benchmarks/run.ts json",
+    "bench:lowdb": "bun benchmarks/run.ts lowdb",
+    "bench:scale": "bun benchmarks/run.ts scale",
+    "example:basic": "bun examples/basic-usage.ts",
+    "example:http": "bun examples/http-api.ts",
+    "example:secondary-indexes": "bun examples/secondary-indexes.ts",
+    "example:nested-fields": "bun examples/nested-fields.ts",
+    "example:compaction": "bun examples/compaction.ts",
+    "example:persistence": "bun examples/persistence.ts"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "lowdb": "^7.0.1"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
-  "dependencies": {
-    "lowdb": "^7.0.1"
-  }
+  "dependencies": {}
 }

@@ -4,11 +4,9 @@
   "workspaces": {
     "": {
       "name": "smoldb",
-      "dependencies": {
-        "lowdb": "^7.0.1",
-      },
       "devDependencies": {
         "@types/bun": "latest",
+        "lowdb": "^7.0.1",
       },
       "peerDependencies": {
         "typescript": "^5",
