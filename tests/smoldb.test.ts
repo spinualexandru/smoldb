@@ -55,7 +55,7 @@ describe('SmolDB', () => {
 
     expect(db.listCollections()).toContain('users');
     const doc = await db.collection('users').get('user_1');
-    expect(doc).toEqual({ name: 'Alice' });
+    expect(doc).toEqual({ id: 'user_1', data: { name: 'Alice' } });
 
     await db.close();
   });
@@ -101,7 +101,7 @@ describe('Collection CRUD', () => {
     await users.insert('user_1', { name: 'Alice', role: 'admin' });
 
     const doc = await users.get('user_1');
-    expect(doc).toEqual({ name: 'Alice', role: 'admin' });
+    expect(doc).toEqual({ id: 'user_1', data: { name: 'Alice', role: 'admin' } });
 
     await db.close();
   });
@@ -113,7 +113,7 @@ describe('Collection CRUD', () => {
     const users = db.collection('users');
     await users.insert('user_1', { name: 'Alice' });
 
-    expect(users.insert('user_1', { name: 'Bob' })).rejects.toThrow(DuplicateIdError);
+    await expect(users.insert('user_1', { name: 'Bob' })).rejects.toThrow(DuplicateIdError);
 
     await db.close();
   });
@@ -139,7 +139,7 @@ describe('Collection CRUD', () => {
     await users.update('user_1', { name: 'Alice Updated', role: 'admin' });
 
     const doc = await users.get('user_1');
-    expect(doc).toEqual({ name: 'Alice Updated', role: 'admin' });
+    expect(doc).toEqual({ id: 'user_1', data: { name: 'Alice Updated', role: 'admin' } });
 
     await db.close();
   });
@@ -150,7 +150,7 @@ describe('Collection CRUD', () => {
 
     const users = db.collection('users');
 
-    expect(users.update('non_existent', { name: 'Bob' })).rejects.toThrow(DocumentNotFoundError);
+    await expect(users.update('non_existent', { name: 'Bob' })).rejects.toThrow(DocumentNotFoundError);
 
     await db.close();
   });
@@ -163,11 +163,11 @@ describe('Collection CRUD', () => {
 
     // Create via upsert
     await users.upsert('user_1', { name: 'Alice' });
-    expect(await users.get('user_1')).toEqual({ name: 'Alice' });
+    expect(await users.get('user_1')).toEqual({ id: 'user_1', data: { name: 'Alice' } });
 
     // Update via upsert
     await users.upsert('user_1', { name: 'Alice Updated' });
-    expect(await users.get('user_1')).toEqual({ name: 'Alice Updated' });
+    expect(await users.get('user_1')).toEqual({ id: 'user_1', data: { name: 'Alice Updated' } });
 
     await db.close();
   });
@@ -239,8 +239,8 @@ describe('Collection CRUD', () => {
 
     const all = await users.getAll();
     expect(all).toHaveLength(2);
-    expect(all).toContainEqual({ name: 'Alice' });
-    expect(all).toContainEqual({ name: 'Bob' });
+    expect(all).toContainEqual({ id: 'user_1', data: { name: 'Alice' } });
+    expect(all).toContainEqual({ id: 'user_2', data: { name: 'Bob' } });
 
     await db.close();
   });
@@ -290,7 +290,7 @@ describe('Secondary Indexes', () => {
 
     const admins = await users.find({ role: 'admin' });
     expect(admins).toHaveLength(2);
-    expect(admins.map((u) => u.name).sort()).toEqual(['Alice', 'Charlie']);
+    expect(admins.map((u) => u.data.name).sort()).toEqual(['Alice', 'Charlie']);
 
     await db.close();
   });
@@ -309,7 +309,7 @@ describe('Secondary Indexes', () => {
 
     const activeAdmins = await users.find({ role: 'admin', active: true });
     expect(activeAdmins).toHaveLength(1);
-    expect(activeAdmins[0].name).toBe('Alice');
+    expect(activeAdmins[0].data.name).toBe('Alice');
 
     await db.close();
   });
@@ -326,7 +326,7 @@ describe('Secondary Indexes', () => {
 
     const admin = await users.findOne({ role: 'admin' });
     expect(admin).not.toBeNull();
-    expect(admin?.role).toBe('admin');
+    expect(admin?.data.role).toBe('admin');
 
     await db.close();
   });
@@ -363,7 +363,7 @@ describe('Secondary Indexes', () => {
 
     const regularUsers = await users.find({ role: 'user' });
     expect(regularUsers).toHaveLength(1);
-    expect(regularUsers[0].name).toBe('Alice');
+    expect(regularUsers[0].data.name).toBe('Alice');
 
     await db.close();
   });
@@ -431,7 +431,7 @@ describe('Large Documents (Blob Store)', () => {
     await docs.insert('doc_1', { content: largeContent });
 
     const doc = await docs.get('doc_1');
-    expect(doc?.content).toBe(largeContent);
+    expect(doc?.data.content).toBe(largeContent);
 
     await db.close();
   });
@@ -449,7 +449,7 @@ describe('Large Documents (Blob Store)', () => {
     await docs.update('doc_1', { content: largeContent2 });
 
     const doc = await docs.get('doc_1');
-    expect(doc?.content).toBe(largeContent2);
+    expect(doc?.data.content).toBe(largeContent2);
 
     await db.close();
   });
@@ -486,7 +486,7 @@ describe('Compaction', () => {
     // Remaining documents should still be accessible
     for (let i = 5; i < 10; i++) {
       const doc = await users.get(`user_${i}`);
-      expect(doc?.name).toBe(`User ${i}`);
+      expect(doc?.data.name).toBe(`User ${i}`);
     }
 
     await db.close();
@@ -528,7 +528,7 @@ describe('Nested Fields', () => {
 
     const usUsers = await users.find({ 'profile.country': 'US' });
     expect(usUsers).toHaveLength(2);
-    expect(usUsers.map((u) => u.name).sort()).toEqual(['Alice', 'Charlie']);
+    expect(usUsers.map((u) => u.data.name).sort()).toEqual(['Alice', 'Charlie']);
 
     await db.close();
   });

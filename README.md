@@ -165,17 +165,17 @@ const coll = db.collection('users');
 
 // CRUD
 await coll.insert(id, document);    // Insert (throws if exists)
-await coll.get(id);                 // Get by ID (null if not found)
+await coll.get(id);                 // Get by ID -> { id, data } | null
 await coll.update(id, document);    // Update (throws if not found)
 await coll.upsert(id, document);    // Insert or update
 await coll.delete(id);              // Delete (returns boolean)
 await coll.has(id);                 // Check existence
 
 // Querying
-await coll.find({ field: value });  // Find by field (uses index if available)
-await coll.findOne({ field: value });
-await coll.findIds({ field: value }); // Return matching IDs (index-only when fully indexed)
-await coll.getAll();                // Get all documents
+await coll.find({ field: value });      // Find by field -> Array<{ id, data }>
+await coll.findOne({ field: value });   // First match -> { id, data } | null
+await coll.findIds({ field: value });   // Return matching IDs (index-only when fully indexed)
+await coll.getAll();                    // Get all documents -> Array<{ id, data }>
 await coll.keys();                  // Get all IDs
 await coll.count();                 // Document count
 await coll.count({ field: value }); // Count with filter (index-only when fully indexed)

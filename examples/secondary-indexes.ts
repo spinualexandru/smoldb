@@ -43,11 +43,11 @@ async function main() {
   // Query by single field
   console.log('Electronics products:');
   const electronics = await products.find({ category: 'electronics' });
-  electronics.forEach((p) => console.log(`  - ${p.name} ($${p.price})`));
+  electronics.forEach(({ id, data }) => console.log(`  - [${id}] ${data.name} ($${data.price})`));
 
   console.log('\nFurniture products:');
   const furniture = await products.find({ category: 'furniture' });
-  furniture.forEach((p) => console.log(`  - ${p.name} ($${p.price})`));
+  furniture.forEach(({ id, data }) => console.log(`  - [${id}] ${data.name} ($${data.price})`));
 
   // Query by multiple fields (intersection)
   console.log('\nIn-stock electronics:');
@@ -55,12 +55,12 @@ async function main() {
     category: 'electronics',
     inStock: true,
   });
-  inStockElectronics.forEach((p) => console.log(`  - ${p.name} ($${p.price})`));
+  inStockElectronics.forEach(({ id, data }) => console.log(`  - [${id}] ${data.name} ($${data.price})`));
 
   // Query by boolean field
   console.log('\nOut of stock items:');
   const outOfStock = await products.find({ inStock: false });
-  outOfStock.forEach((p) => console.log(`  - ${p.name}`));
+  outOfStock.forEach(({ id, data }) => console.log(`  - [${id}] ${data.name}`));
 
   // findOne - get first match
   console.log('\nFirst furniture item:');

@@ -95,6 +95,15 @@ export type QueryFilter = Record<string, unknown>;
 /** Document type */
 export type Document = Record<string, unknown>;
 
+/**
+ * Entry returned from high-level collection reads.
+ * Includes the document ID and the stored document data.
+ */
+export interface DocumentEntry {
+  id: string;
+  data: Document;
+}
+
 /** Primary index: Map<documentId, DocumentLocation> */
 export type PrimaryIndex = Map<string, DocumentLocation>;
 

@@ -91,7 +91,7 @@ async function main() {
 
     console.log('\nPosts:');
     const allPosts = await posts.getAll();
-    allPosts.forEach((p) => console.log(`  - ${p.title} by ${p.authorId}`));
+    allPosts.forEach(({ id, data }) => console.log(`  - [${id}] ${data.title} by ${data.authorId}`));
 
     // Verify indexes still work
     console.log('\nQuerying with indexes:');
@@ -130,10 +130,10 @@ async function main() {
 
     // Verify all data persisted
     const diana = await users.get('user_4');
-    console.log('User added in session 2:', diana?.name);
+    console.log('User added in session 2:', diana?.data.name);
 
     const newPost = await posts.get('post_3');
-    console.log('Post added in session 2:', newPost?.title);
+    console.log('Post added in session 2:', newPost?.data.title);
 
     // Database stats
     const stats = await db.getStats();

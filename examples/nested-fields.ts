@@ -63,11 +63,11 @@ async function main() {
   // Query by nested field
   console.log('Engineering department:');
   const engineering = await employees.find({ 'department.name': 'Engineering' });
-  engineering.forEach((e) => console.log(`  - ${e.name} (${e.address.city})`));
+  engineering.forEach(({ id, data }) => console.log(`  - [${id}] ${data.name} (${data.address?.city})`));
 
   console.log('\nEmployees in UK:');
   const ukEmployees = await employees.find({ 'address.country': 'UK' });
-  ukEmployees.forEach((e) => console.log(`  - ${e.name} (${e.address.city})`));
+  ukEmployees.forEach(({ id, data }) => console.log(`  - [${id}] ${data.name} (${data.address?.city})`));
 
   // Combined nested queries
   console.log('\nEngineering employees in US:');
@@ -75,7 +75,7 @@ async function main() {
     'department.name': 'Engineering',
     'address.country': 'US',
   });
-  usEngineers.forEach((e) => console.log(`  - ${e.name}`));
+  usEngineers.forEach(({ id, data }) => console.log(`  - [${id}] ${data.name}`));
 
   // Iterate through all with async iterator
   console.log('\nAll employees (using async iterator):');

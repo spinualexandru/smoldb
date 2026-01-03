@@ -76,8 +76,8 @@ async function main() {
   console.log('\nVerifying remaining documents...');
   let verified = 0;
   for (let i = 70; i < 100; i++) {
-    const doc = await logs.get(`log_${i}`);
-    if (doc && doc.message.includes(`Log message ${i}`)) {
+    const entry = await logs.get(`log_${i}`);
+    if (entry && typeof entry.data.message === 'string' && entry.data.message.includes(`Log message ${i}`)) {
       verified++;
     }
   }

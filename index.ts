@@ -37,6 +37,7 @@ export type {
   CollectionOptions,
   CompactionResult,
   DocumentLocation,
+  DocumentEntry,
 } from './src/types';
 
 // Errors

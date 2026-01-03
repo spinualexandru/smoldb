@@ -3,7 +3,7 @@
  * Provides CRUD operations for a single collection
  */
 
-import type { Document, QueryFilter, SmolDBOptions, CompactionResult } from './types';
+import type { Document, DocumentEntry, QueryFilter, SmolDBOptions, CompactionResult } from './types';
 import { SHARED_STATE_SIZE } from './types';
 import { FILE_EXTENSIONS, BLOB_DIR, DEFAULT_BLOB_THRESHOLD, DEFAULT_GC_TRIGGER_RATIO } from './constants';
 import { StorageEngine } from './storage';
@@ -190,22 +190,24 @@ export class Collection {
     this.cacheClear();
   }
 
-  /**
+/**
    * Get a document by ID
-   * @returns Document or null if not found
+   * @returns Entry including the ID and document data, or null if not found
    */
-  async get(id: string): Promise<Document | null> {
+  async get(id: string): Promise<DocumentEntry | null> {
     await this.ensureInitialized();
 
     const cached = this.cacheGet(id);
-    if (cached) return cached;
+    if (cached) {
+      return { id, data: cached };
+    }
 
     const location = this.indexManager.getLocation(id);
     if (!location) return null;
 
     const doc = await this.storage.read(location);
     this.cacheSet(id, doc);
-    return doc;
+    return { id, data: doc };
   }
 
   /**
@@ -276,18 +278,31 @@ export class Collection {
     return this.indexManager.has(id);
   }
 
-  /**
-   * Find documents matching a filter
+/**
+   * Find documents matching a filter.
+   * Returns entries including IDs and document data.
    */
-  async find(filter: QueryFilter): Promise<Document[]> {
+  async find(filter: QueryFilter): Promise<DocumentEntry[]> {
     await this.ensureInitialized();
-    return this.indexManager.query(filter, this.storage, (id, location) => this.readWithCache(id, location));
+
+    const ids = await this.indexManager.queryIds(
+      filter,
+      this.storage,
+      (id, location) => this.readWithCache(id, location)
+    );
+
+    const results: DocumentEntry[] = [];
+    for (const id of ids) {
+      const entry = await this.get(id);
+      if (entry) results.push(entry);
+    }
+    return results;
   }
 
   /**
    * Find a single document matching a filter
    */
-  async findOne(filter: QueryFilter): Promise<Document | null> {
+  async findOne(filter: QueryFilter): Promise<DocumentEntry | null> {
     const results = await this.find(filter);
     return results[0] ?? null;
   }
@@ -301,18 +316,18 @@ export class Collection {
     return this.indexManager.queryIds(filter, this.storage, (id, location) => this.readWithCache(id, location));
   }
 
-  /**
-   * Get all documents
+/**
+   * Get all documents (entries including IDs and data)
    */
-  async getAll(): Promise<Document[]> {
+  async getAll(): Promise<DocumentEntry[]> {
     await this.ensureInitialized();
 
-    const docs: Document[] = [];
+    const entries: DocumentEntry[] = [];
     for (const id of this.indexManager.getAllIds()) {
-      const doc = await this.get(id);
-      if (doc) docs.push(doc);
+      const entry = await this.get(id);
+      if (entry) entries.push(entry);
     }
-    return docs;
+    return entries;
   }
 
   /**
@@ -429,10 +444,10 @@ export class Collection {
     this.cacheClear();
   }
 
-  /**
+/**
    * Iterate over all documents
    */
-  async *[Symbol.asyncIterator](): AsyncIterableIterator<{ id: string; data: Document }> {
+  async *[Symbol.asyncIterator](): AsyncIterableIterator<DocumentEntry> {
     await this.ensureInitialized();
 
     for (const id of this.indexManager.getAllIds()) {

@@ -46,7 +46,8 @@ async function startServer() {
         // GET /users - List all users
         if (path === '/users' && method === 'GET') {
           const allUsers = await users.getAll();
-          return new Response(JSON.stringify(allUsers), { headers });
+          const payload = allUsers.map(({ id, data }) => ({ id, ...data }));
+          return new Response(JSON.stringify(payload), { headers });
         }
 
         // POST /users - Create user
@@ -60,7 +61,7 @@ async function startServer() {
           });
 
           const created = await users.get(id);
-          return new Response(JSON.stringify({ id, ...created }), {
+          return new Response(JSON.stringify({ id, ...(created?.data ?? {}) }), {
             status: 201,
             headers,
           });
@@ -79,7 +80,7 @@ async function startServer() {
             });
           }
 
-          return new Response(JSON.stringify({ id, ...user }), { headers });
+          return new Response(JSON.stringify({ id, ...user.data }), { headers });
         }
 
         // PUT /users/:id - Update user
@@ -93,7 +94,7 @@ async function startServer() {
               updatedAt: Date.now(),
             });
             const updated = await users.get(id);
-            return new Response(JSON.stringify({ id, ...updated }), { headers });
+            return new Response(JSON.stringify({ id, ...(updated?.data ?? {}) }), { headers });
           } catch (e) {
             if (e instanceof DocumentNotFoundError) {
               return new Response(JSON.stringify({ error: 'User not found' }), {
@@ -125,7 +126,8 @@ async function startServer() {
           const email = url.searchParams.get('email');
           if (email) {
             const results = await users.find({ email });
-            return new Response(JSON.stringify(results), { headers });
+            const payload = results.map(({ id, data }) => ({ id, ...data }));
+            return new Response(JSON.stringify(payload), { headers });
           }
         }
 
