@@ -230,7 +230,7 @@ export class IndexManager {
             candidateIds = new Set(matchingIds);
           } else {
             // Intersect
-            candidateIds = new Set([...candidateIds].filter((id) => matchingIds.has(id)));
+            candidateIds = new Set([...candidateIds].filter((id: string) => matchingIds.has(id)));
           }
         } else {
           // No matches for this indexed value
@@ -290,7 +290,7 @@ export class IndexManager {
           if (candidateIds === null) {
             candidateIds = new Set(matchingIds);
           } else {
-            candidateIds = new Set([...candidateIds].filter((id) => matchingIds.has(id)));
+            candidateIds = new Set([...candidateIds].filter((id: string) => matchingIds.has(id)));
           }
         } else {
           return [];
@@ -346,7 +346,7 @@ export class IndexManager {
           if (candidateIds === null) {
             candidateIds = new Set(matchingIds);
           } else {
-            candidateIds = new Set([...candidateIds].filter((id) => matchingIds.has(id)));
+            candidateIds = new Set([...candidateIds].filter((id: string) => matchingIds.has(id)));
           }
         } else {
           return 0;
